@@ -10,7 +10,6 @@ import (
     "time"
     "os"
     "strings"
-    
 )
 
 func formHandler(w http.ResponseWriter, r *http.Request) {
@@ -20,9 +19,7 @@ func formHandler(w http.ResponseWriter, r *http.Request) {
     }
     fmt.Fprintf(w, "POST request successful")
     name := r.FormValue("name")
-    address := r.FormValue("address")
-    fmt.Fprintf(w, "Name = %s\n", name)
-    fmt.Fprintf(w, "Address = %s\n", address)
+    fmt.Fprintf(w, "letter = %s\n", name)
 }
 
 func helloHandler(w http.ResponseWriter, r *http.Request) {
@@ -38,7 +35,7 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
 
 
     fmt.Fprintf(w, "Hello!")
-	begin(w)
+	begin(w,r)
 }
 
 
@@ -219,7 +216,7 @@ func clear() {
 	}
 }
 
-func begin(r http.ResponseWriter) {
+func begin(r http.ResponseWriter, w *http.Request) {
 	/*
 	fonction principale du programme il permet de mettre en relation toutes les variables ci dessus, cette fonciton permet de jouer au pendu 
 	*/
@@ -240,7 +237,11 @@ func begin(r http.ResponseWriter) {
 		fmt.Fprintln(r,letterUser) // imprime toutes les lettres que l'utilisateur a rentré 
 		fmt.Fprintln(r,"")
 		fmt.Fprintf(r," entrez un caractère :  ")
-		fmt.Scan(&letter)// on prend la lettre uqe l'utilisateur choisie
+		if err := w.ParseForm(); err != nil {
+			fmt.Fprintf(r, "ParseForm() err: %v", err)
+			return
+		}
+		letter = w.FormValue("name")// on prend la lettre uqe l'utilisateur choisie
 		letter = strings.ToUpper(letter) // si la lettre est bien dans dans l'alphabet on le passe en majuscule 
 		if testLetter(letter,letterUser) == false { // on verifie si la lettre n'a jamais été choisie
 			fmt.Fprint(r,"vous avez déja rentrez cette lettre au par avant \n \n \n") 
@@ -267,7 +268,7 @@ func begin(r http.ResponseWriter) {
 	}
 	if replay(r) == true { // si replay est égal a true on relance le programme begin qui recommence une partie 
 		clear()
-		begin(r)
+		begin(r,w)
 	}else { //sinon le programme s'arrete
 		fmt.Fprintln(r,"a bientôt ! :) ")
 	}
