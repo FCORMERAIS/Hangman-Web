@@ -17,9 +17,9 @@ func formHandler(w http.ResponseWriter, r *http.Request) {
         fmt.Fprintf(w, "ParseForm() err: %v", err)
         return
     }
-    fmt.Fprintf(w, "POST request successful")
-    name := r.FormValue("name")
-    fmt.Fprintf(w, "letter = %s\n", name)
+    letter := r.FormValue("letter")
+    fmt.Println(letter)
+	fmt.Fprintln(w,letter)
 }
 
 func helloHandler(w http.ResponseWriter, r *http.Request) {
@@ -27,21 +27,21 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
         http.Error(w, "404 not found.", http.StatusNotFound)
         return
     }
-
     if r.Method != "GET" {
         http.Error(w, "Method is not supported.", http.StatusNotFound)
         return
     }
-
-
     fmt.Fprintf(w, "Hello!")
 	begin(w,r)
 }
-
-
+/*
+func errorHandle(w http.ResponseWriter, r *http.Request) {
+	
+}
+*/
 func main() {
-    fileServer := http.FileServer(http.Dir("./static"))
-    http.Handle("/", fileServer)
+   // fileServer := http.FileServer(http.Dir("./static"))
+    //http.HandleFunc("/", errorHandle)
     http.HandleFunc("/form", formHandler)
     http.HandleFunc("/hello", helloHandler)
 
@@ -241,18 +241,17 @@ func begin(r http.ResponseWriter, w *http.Request) {
 			fmt.Fprintf(r, "ParseForm() err: %v", err)
 			return
 		}
-		letter = w.FormValue("name")// on prend la lettre uqe l'utilisateur choisie
+		letter = w.FormValue("letter")// on prend la lettre uqe l'utilisateur choisie
 		letter = strings.ToUpper(letter) // si la lettre est bien dans dans l'alphabet on le passe en majuscule 
+		fmt.Fprintln(r,letter)
 		if testLetter(letter,letterUser) == false { // on verifie si la lettre n'a jamais été choisie
 			fmt.Fprint(r,"vous avez déja rentrez cette lettre au par avant \n \n \n") 
-			continue
 		}else {
 			letterUser = append(letterUser,letter) // on ajoute la lettre choisi par l'utilisateur dans letterUser si il ne la pas encore choisie 
 		}
 		if letterChooseTest(letter, test) == false { // on verifie si la lettre choisie par l'utilisateur est dans le mot ou pas 
 			fmt.Fprint(r,"la lettre que vous avez choisie n'est pas dans le mot \n \n \n")
 			attemps-- // si non on imprime que elle n'est pas dans le mot et on décremente de 1 attemps
-			continue
 		}else { // sinon cela veut dire que la lettre est forcément dans le mot 
 			fmt.Fprint(r,"vous avez trouvé une lettre de plus ! \n \n \n")
 		}
