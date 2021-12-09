@@ -2,13 +2,13 @@
 <html lang="en">
     <head>
         <meta charset="utf-8">
-        <title>{{.Letter}}</title>
+        <title>Hangman-Web</title>
     </head>
     <body>
         <form method="post">
-            Username:<input type="text" name="letr" required
+            lettre a choisir :<input type="text" name="letr" required
             minlength="1" maxlength="1" size="10">
-            <input type="submit" value="Login">
+            <input type="submit" value="entrée">
         </form>
         <article id="content">
             {{template "content" .}}

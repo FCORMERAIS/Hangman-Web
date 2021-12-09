@@ -16,10 +16,13 @@ import (
 func main() {
     alphabet := []string{"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"}
     var letter_choose []string 
-	word := chooseWord()
+	word_tempo := chooseWord()
+	word := strings.Split(word_tempo, "")
     type Page struct {
         Letter    string
         Articles []string
+		Word 	string
+		Articles2 []string
     }
     http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
         // Création d'une page
@@ -27,50 +30,53 @@ func main() {
         for i:=0 ; i<len(alphabet);i++ {
             if strings.ToUpper(letter) == alphabet[i] {
                 letter_choose = append(letter_choose,alphabet[i]) 
-                alphabet[i] = "0"
+				alphabet = remove(alphabet,i)
             }
         }
-        p := Page{letter, alphabet}
-        
+		word_tempo = printWord(w,letter_choose,word)
+        p := Page{letter, alphabet,word_tempo,letter_choose}
         // Création d'une nouvelle  de template
         t := template.New("Label de ma template")
-
         // Déclaration des fichiers à parser
         t = template.Must(t.ParseFiles("tmpl/layout.html", "tmpl/content.html"))
-
         // Exécution de la fusion et injection dans le flux de sortie
         // La variable p sera réprésentée par le "." dans le layout
         err := t.ExecuteTemplate(w, "layout", p)
-
         if err != nil {
             log.Fatalf("Template execution: %s", err)
         }
-        fmt.Fprintln(w,word)
+        printWord(w,letter_choose,word)
     })
     http.ListenAndServe(":3000", nil)
 }
 
-func printWord(r http.ResponseWriter,letter_choose []string, word []string) {
+func remove(slice []string, s int) []string {
+    return append(slice[:s], slice[s+1:]...)
+}
+
+func printWord(r http.ResponseWriter,letter_choose []string, word []string)string {
 	/*
 	fonction permettant d'afficher le mot en fonction des lettres que l'utilisateur a déjà trouver
 	input : -letter_choose type []string il s'agit des lettres que l'utilisateur a déjà rentrer 
 			-word : type string il s'agit du mot a deviner 
 	copléxité O(n²)
 	*/
+	mot := ""
 	count := 0 
 	for i:= 0 ; i < len(word) ;i++{
 		for k := 0; k < len(letter_choose); k++ { // debut de la boucle
 			if string(word[i]) == string(letter_choose[k]) {
-				fmt.Fprint(r,string(word[i]))
+				mot = mot+string(word[i])
 				count++
 			}
 		} //fin de la boucle
 		if count == 0 {
-			fmt.Fprint(r,"_") // renvoie un underscore si le joueur n'a pas trouver la lettre 
+			mot=mot+"_" // renvoie un underscore si le joueur n'a pas trouver la lettre 
 		}
 		count = 0
-	}
-	fmt.Fprint(r,"\n \n") // saut a la ligne
+		mot = mot + " "
+	} 
+	return mot
 }
 
 func chooseWord() string {
