@@ -24,7 +24,7 @@ func main() {
 		Word 	string
 		Articles2 []string
     }
-    http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+    http.HandleFunc("/Hangman", func(w http.ResponseWriter, r *http.Request) {
         // Création d'une page
         letter := r.FormValue("letr")
         for i:=0 ; i<len(alphabet);i++ {
@@ -51,6 +51,10 @@ func main() {
 			}
 		}
     })
+
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		
+	})
     http.ListenAndServe(":3000", nil)
 }
 
