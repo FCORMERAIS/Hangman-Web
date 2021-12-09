@@ -52,10 +52,13 @@ func main() {
 		}
     })
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		
-	})
+	fileServer := http.FileServer(http.Dir("./tmpl"))
+	http.Handle("/", fileServer)
     http.ListenAndServe(":3000", nil)
+	fmt.Printf("Starting server at port 3000\n")
+    if err := http.ListenAndServe(":3000", nil); err != nil {
+        log.Fatal(err)
+    }
 }
 
 func remove(slice []string, s int) []string {
