@@ -33,7 +33,7 @@ func main() {
 				alphabet = remove(alphabet,i)
             }
         }
-		word_tempo = printWord(w,letter_choose,word)
+		word_tempo = printWord(letter_choose,word)
         p := Page{letter, alphabet,word_tempo,letter_choose}
         // Création d'une nouvelle  de template
         t := template.New("Label de ma template")
@@ -45,7 +45,11 @@ func main() {
         if err != nil {
             log.Fatalf("Template execution: %s", err)
         }
-        printWord(w,letter_choose,word)
+		if win(word,letter_choose) {
+			if replay() == true {
+				main()
+			}
+		}
     })
     http.ListenAndServe(":3000", nil)
 }
@@ -54,7 +58,7 @@ func remove(slice []string, s int) []string {
     return append(slice[:s], slice[s+1:]...)
 }
 
-func printWord(r http.ResponseWriter,letter_choose []string, word []string)string {
+func printWord(letter_choose []string, word []string)string {
 	/*
 	fonction permettant d'afficher le mot en fonction des lettres que l'utilisateur a déjà trouver
 	input : -letter_choose type []string il s'agit des lettres que l'utilisateur a déjà rentrer 
@@ -192,14 +196,14 @@ func letterChooseTest(letter string, word []string) bool {
 	return false
 }
 
-func replay(r http.ResponseWriter) bool{
+func replay() bool{
 	/*
 	fonction permettant de savoir si l'utilisateur veut relancer une partie ou non 
 	return : Bool
 	compléxité : O(4)
 	*/
 	answer := ""
-	fmt.Fprintln(r,"voulez-vous refaire une partie ? [Y/N] : ")
+	fmt.Println("voulez-vous refaire une partie ? [Y/N] : ")
 	fmt.Scan(&answer)
 	if answer == "yes" || answer == "y"||answer == "YES" || answer == "Y"||answer == "Yes" { // si l'utilisateur ecrit yes il rejoue une partie sinon il quitte le programme 
 		return true
@@ -232,7 +236,7 @@ func begin(r http.ResponseWriter, w *http.Request) {
 		clear()
 		showJosé(r,attemps)// imprime la position du pendu
 		fmt.Fprint(r,"voici le mot que vous devez deviner : ")
-		printWord(r,letterUser,test)// imprime le mot que l'on doit deviner avec seulement les lettres 
+		fmt.Fprintln(r,printWord(letterUser,test))// imprime le mot que l'on doit deviner avec seulement les lettres 
 		fmt.Fprint(r,"vous avez ")
 		fmt.Fprint(r,attemps) // on imprime 
 		fmt.Fprint(r," tentatives avant un d'échoué \n \n \n")
@@ -268,7 +272,7 @@ func begin(r http.ResponseWriter, w *http.Request) {
 		fmt.Fprint(r,"le mot était : ")
 		fmt.Fprintln(r,word)
 	}
-	if replay(r) == true { // si replay est égal a true on relance le programme begin qui recommence une partie 
+	if replay() == true { // si replay est égal a true on relance le programme begin qui recommence une partie 
 		clear()
 		begin(r,w)
 	}else { //sinon le programme s'arrete
