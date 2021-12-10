@@ -57,6 +57,12 @@ func main() {
 		if err != nil {
 		}
 	})
+	http.HandleFunc("/error", func(w http.ResponseWriter, r *http.Request) { //crée une page
+		tmpl, err := template.ParseFiles("./error.html")
+		tmpl.ExecuteTemplate(w, "error404", nil)
+		if err != nil {
+		}
+	})
 	http.ListenAndServe("localhost:3000", nil)
 }
 
