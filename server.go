@@ -57,9 +57,15 @@ func main() {
 		if err != nil {
 		}
 	})
-	http.HandleFunc("/error", func(w http.ResponseWriter, r *http.Request) { //crée une page
-		tmpl, err := template.ParseFiles("./error.html")
+	http.HandleFunc("/error404", func(w http.ResponseWriter, r *http.Request) { //crée une page
+		tmpl, err := template.ParseFiles("./error404.html")
 		tmpl.ExecuteTemplate(w, "error404", nil)
+		if err != nil {
+		}
+	})
+	http.HandleFunc("/error501", func(w http.ResponseWriter, r *http.Request) { //crée une page
+		tmpl, err := template.ParseFiles("./error501.html")
+		tmpl.ExecuteTemplate(w, "error501", nil)
 		if err != nil {
 		}
 	})
