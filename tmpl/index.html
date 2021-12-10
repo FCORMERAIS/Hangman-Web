@@ -1,0 +1,93 @@
+{{ define "index"}}
+<!DOCTYPE html>
+
+  <head>
+    <title>Juliette&Flavio's page</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Prompt:wght@200&display=swap" rel="stylesheet">
+  </head>
+  
+  <body>
+    <div class="navbar">
+      <div class="icon">
+        <h2 class="logo">HANGMAN</h2>
+      </div>
+      <div class="menu">
+        <ul>
+          <li><a href="#page1">Play</a></li>
+          <li><a href="#page2">The Team</a></li>
+          <li><a href="#page3">Rules</a></li>
+          <li><a href="#page4">Gitea</a></li>
+        </ul>
+      </div>
+    </div>
+    <section class="main">
+      <section class="page1" id="page1">
+        <div class="intro">
+          <h1>Hangman Game Programming<br/><span>HTML / CSS</span><br/>Menu</h1>
+          <p class="text">
+            Hangman-web consists in creating and running a server, in which it will be possible to use a web GUI (graphical user interface) version of our last project, hangman-classic.
+            We had to use a go module to call our functions from hangman-classic.
+            <br>
+            We needed to create a private repository with the name hangman-web
+          </p>
+          <a href="http://localhost:3000/Hangman">
+            <input type="button" name="btn" value="Play Now">
+        </a> 
+        </div>
+        <div>
+            <img class = "photopendu" src="https://zupimages.net/up/21/49/jt54.png" />
+          </p>
+        </div>
+      </section>
+    </section>
+    <section class="page2" id="page2">
+      <h2>THE TEAM</h2>
+      <p>Let's introduce ourselves</p>
+      <div class="row">
+        <div class="col">
+          <h3>Flavio Cormerais</h3>
+          <p>
+            <img class = "photoflav" src="https://zupimages.net/up/21/49/22yh.jpg" />
+          </p>
+        </div>
+        <div class="col">
+          <h3>Juliette GUENARD</h3>
+          <p>
+            <img class = "photoj" src="https://zupimages.net/up/21/49/1f3d.jpg" />
+          </p>
+        </div>
+      </div>
+    </section>
+    <section class="page3" id="page3">
+      <h2>Rules</h2>
+      <p>How to play Hangman ?</p>
+      <br/>
+      <h3>You have 10 attempts to guess the random word.
+        Every time you make a mistake, José gets closer to death.
+        Don't let José hang himself!<br/> Good luck!</h2>
+      <div class="row">
+
+      </div>
+    </section>
+    <section class="page4" id= "page4">
+      <h2>Acknowledgements</h2>
+      <p>Thanks to our professor and mentors<br/>
+      <img class= "imgynov" src= "https://www.e-testing.fr/wp-content/uploads/2017/11/logo-ynov.jpg" /></p>
+    </section>
+    <section class="git">
+      <h1>
+        Our Repository in GITEA<br /><span
+          >Hangman-web</span
+        >
+      </h1>
+      <p>
+        <img class= "icontea" src="https://zupimages.net/up/21/49/p6fk.png" />
+      </p>
+      <br/>
+      <a href = "https://git.ytrack.learn.ynov.com/FCORMERAIS/Hangman-Web/branches">Gitea</a>
+    </section>
+  </body>
+</html>
+{{end}}

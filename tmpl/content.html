@@ -1,0 +1,39 @@
+{{define "content"}}
+<style>
+    body{background-color: rgb(110, 172, 134)}
+    .alphabet {
+    color: bisque;
+    display : flex;
+    justify-content : flex-start;
+    background-color:rgb(187, 127, 167);
+    border: none;
+    border-radius:50px;
+    text-decoration : rgb(110, 172, 134);
+    width:30px;
+    height:30px;
+    }
+    .mot {
+        display: flex;
+        justify-content: center;
+        color : rgb(192, 18, 169);
+    }
+    .letterChoose {
+    color: bisque;
+    display : flex;
+    justify-content : flex-end;
+    background-color:rgb(70, 12, 177);
+    border: none;
+    border-radius:50px;
+    text-decoration : rgb(110, 172, 134);
+    width:30px;
+    height:30px;
+    }
+    </style>
+<h1 class="mot">{{.Word}}</h1>
+    {{range .Articles}}
+        <p class="alphabet">{{.}}</p>
+    {{end}}
+    {{range .Articles2}}
+    <p class="letterChoose">{{.}}</p>
+    {{end}}
+{{end}}

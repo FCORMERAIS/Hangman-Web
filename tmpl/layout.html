@@ -1,0 +1,18 @@
+{{define "layout"}}<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Hangman-Web</title>
+    </head>
+    <body>
+        <form method="post">
+            lettre a choisir :<input type="text" name="letr" required
+            minlength="1" maxlength="1" size="10">
+            <input type="submit" value="entrée">
+        </form>
+        <article id="content">
+            {{template "content" .}}
+        </article>
+    </body>
+</html>
+{{end}}
