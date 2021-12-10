@@ -51,14 +51,13 @@ func main() {
 			}
 		}
     })
-
-	fileServer := http.FileServer(http.Dir("./tmpl"))
-	http.Handle("/", fileServer)
-    http.ListenAndServe(":3000", nil)
-	fmt.Printf("Starting server at port 3000\n")
-    if err := http.ListenAndServe(":3000", nil); err != nil {
-        log.Fatal(err)
-    }
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { //crée une page
+		tmpl, err := template.ParseFiles("./tmpl/index.html")
+		tmpl.ExecuteTemplate(w, "index", nil)
+		if err != nil {
+		}
+	})
+	http.ListenAndServe("localhost:3000", nil)
 }
 
 func remove(slice []string, s int) []string {
