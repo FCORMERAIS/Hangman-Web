@@ -18,11 +18,13 @@ func main() {
     var letter_choose []string 
 	word_tempo := chooseWord()
 	word := strings.Split(word_tempo, "")
+	attemps := 10
     type Page struct {
         Letter    string
         Articles []string
 		Word 	string
 		Articles2 []string
+		Vie int
     }
     http.HandleFunc("/Hangman", func(w http.ResponseWriter, r *http.Request) {
         // Création d'une page
@@ -34,7 +36,7 @@ func main() {
             }
         }
 		word_tempo = printWord(letter_choose,word)
-        p := Page{letter, alphabet,word_tempo,letter_choose}
+        p := Page{letter, alphabet,word_tempo,letter_choose,attemps}
         // Création d'une nouvelle  de template
         t := template.New("Label de ma template")
         // Déclaration des fichiers à parser
