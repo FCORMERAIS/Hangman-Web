@@ -26,23 +26,23 @@ func main() {
 		Articles2 []string
 		Vie int
     }
+	//
     http.HandleFunc("/Hangman", func(w http.ResponseWriter, r *http.Request) {
         // Création d'une page
-        letter := r.FormValue("letr")
+        letter := strings.ToUpper(r.FormValue("letr"))
         for i:=0 ; i<len(alphabet);i++ {
-            if strings.ToUpper(letter) == alphabet[i] {
+            if letter == alphabet[i] {
                 letter_choose = append(letter_choose,alphabet[i]) 
 				alphabet = remove(alphabet,i)
             }
         }
+		if letterChooseTest(letter, word) == false {
+			attemps--
+		}
 		word_tempo = printWord(letter_choose,word)
-        p := Page{letter, alphabet,word_tempo,letter_choose,attemps}
-        // Création d'une nouvelle  de template
-        t := template.New("Label de ma template")
-        // Déclaration des fichiers à parser
-        t = template.Must(t.ParseFiles("tmpl/layout.html", "tmpl/content.html"))
-        // Exécution de la fusion et injection dans le flux de sortie
-        // La variable p sera réprésentée par le "." dans le layout
+        p := Page{letter, alphabet,word_tempo,letter_choose,attemps}// Création d'une nouvelle  de template
+        t := template.New("Label de ma template")// Déclaration des fichiers à parser
+        t = template.Must(t.ParseFiles("tmpl/layout.html", "tmpl/content.html"))// Exécution de la fusion et injection dans le flux de sortie / La variable p sera réprésentée par le "." dans le layout
         err := t.ExecuteTemplate(w, "layout", p)
         if err != nil {
             log.Fatalf("Template execution: %s", err)
@@ -53,24 +53,28 @@ func main() {
 			}
 		}
     })
+	//
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { //crée une page
 		tmpl, err := template.ParseFiles("./tmpl/index.html")
 		tmpl.ExecuteTemplate(w, "index", nil)
 		if err != nil {
 		}
 	})
+	//
 	http.HandleFunc("/error404", func(w http.ResponseWriter, r *http.Request) { //crée une page
 		tmpl, err := template.ParseFiles("./error404.html")
 		tmpl.ExecuteTemplate(w, "error404", nil)
 		if err != nil {
 		}
 	})
+	//
 	http.HandleFunc("/error501", func(w http.ResponseWriter, r *http.Request) { //crée une page
 		tmpl, err := template.ParseFiles("./error501.html")
 		tmpl.ExecuteTemplate(w, "error501", nil)
 		if err != nil {
 		}
 	})
+	//
 	http.ListenAndServe("localhost:3000", nil)
 }
 
@@ -231,7 +235,6 @@ func replay() bool{
 		return false
 	}
 }
-
 
 func clear() {
 	/*
