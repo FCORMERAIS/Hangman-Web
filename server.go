@@ -13,23 +13,27 @@ import (
     "strings"
 )
 
+type Page struct {
+	Letter    string
+	Articles []string
+	Word 	string
+	Articles2 []string
+	Vie int
+	Image string
+}
+
 func main() {
+	fs:= http.FileServer(http.Dir("tmpl/pos_hangman"))
+	http.Handle("/pos_hangman/", http.StripPrefix("/pos_hangman/" , fs))
     alphabet := []string{"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"}
-    var letter_choose []string 
 	word_tempo := chooseWord()
 	word := strings.Split(word_tempo, "")
 	attemps := 10
-    type Page struct {
-        Letter    string
-        Articles []string
-		Word 	string
-		Articles2 []string
-		Vie int
-    }
-	//
+	letter_choose := take_letter(word)
+	// 
     http.HandleFunc("/Hangman", func(w http.ResponseWriter, r *http.Request) {
         // Création d'une page
-        letter := strings.ToUpper(r.FormValue("letr"))
+        letter := strings.ToUpper(r.FormValue("letter"))
         for i:=0 ; i<len(alphabet);i++ {
             if letter == alphabet[i] {
                 letter_choose = append(letter_choose,alphabet[i]) 
@@ -40,7 +44,7 @@ func main() {
 			attemps--
 		}
 		word_tempo = printWord(letter_choose,word)
-        p := Page{letter, alphabet,word_tempo,letter_choose,attemps}// Création d'une nouvelle  de template
+        p := Page{letter, alphabet,word_tempo,letter_choose,attemps,"pos_hangman/pos_10.png"}// Création d'une nouvelle  de template
         t := template.New("Label de ma template")// Déclaration des fichiers à parser
         t = template.Must(t.ParseFiles("tmpl/layout.html", "tmpl/content.html"))// Exécution de la fusion et injection dans le flux de sortie / La variable p sera réprésentée par le "." dans le layout
         err := t.ExecuteTemplate(w, "layout", p)
