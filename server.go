@@ -31,6 +31,11 @@ func main() {
 	word := strings.Split(word_tempo, "")
 	attemps := 11
 	letter_choose := take_letter(word)
+	for i:=0 ; i<len(alphabet);i++ {
+		if letter_choose[0] == alphabet[i] {
+			alphabet = remove(alphabet,i)
+		}
+	}
 	// 
     http.HandleFunc("/Hangman", func(w http.ResponseWriter, r *http.Request) {
         // Création d'une page
