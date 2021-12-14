@@ -1,6 +1,5 @@
 package main
 
-
 import (
 	"html/template"
     "log"
@@ -9,70 +8,106 @@ import (
     "io/ioutil"
     "math/rand"
     "time"
-    "os"
     "strings"
 )
 
+type Page struct { // la class Page est la classe permettant d'envoyer les variables que l'on souhaite dans notre fichier html et permet de l'afficher sur notre site avec un template 
+	Letter    string
+	Articles []string
+	Word 	string
+	Articles2 []string
+	Vie int
+	Image string
+	End string
+}
+
 func main() {
-    alphabet := []string{"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"}
-    var letter_choose []string 
-	word_tempo := chooseWord()
-	word := strings.Split(word_tempo, "")
-    type Page struct {
-        Letter    string
-        Articles []string
-		Word 	string
-		Articles2 []string
-    }
+	fs:= http.FileServer(http.Dir("tmpl/pos_hangman")) 
+	http.Handle("/pos_hangman/", http.StripPrefix("/pos_hangman/" , fs)) // cela nous permet d'utiliser les images pour afficher la position du pendu en fonction du nombre de tentatives restantes 
+	images_src := []string{"pos_hangman/pos_10.png","pos_hangman/pos_9.png","pos_hangman/pos_8.png","pos_hangman/pos_7.png","pos_hangman/pos_6.png","pos_hangman/pos_5.png","pos_hangman/pos_4.png","pos_hangman/pos_3.png","pos_hangman/pos_2.png","pos_hangman/pos_1.png","pos_hangman/pos_0.png"}
+    // on stocks les endroits ou sont stockés les images du pendu dans uen liste 
+	alphabet := []string{"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"}// liste contenant toutes les lettres que l'on peut utiliser
+	word_tempo := chooseWord()// nous permet d'afficher la progression de l'utilisateur
+	word := strings.Split(word_tempo, "")// il s'agit du mot a trouver mais qu'on a split pour qu'il soit contenu dans une liste (cela nous permet d'utiliser des focntions)
+	attemps := 10 // initialisation du nombre de tentatives
+	end := "" // initialisation du message qu'on affiche our savoir 
+	letter := "" 
+	letter_choose := take_letter(word) // nous permet d'enregistrer les lettres que l'utilisateur a choisie et il commence avec une lettre deja donné 
+	for i:=0 ; i<len(alphabet);i++ {
+		if letter_choose[0] == alphabet[i] {
+			alphabet = remove(alphabet,i) // on retire la lettre que l'on a donné de l'alphabet
+		}
+	}
+	// 
     http.HandleFunc("/Hangman", func(w http.ResponseWriter, r *http.Request) {
         // Création d'une page
-        letter := r.FormValue("letr")
-        for i:=0 ; i<len(alphabet);i++ {
-            if strings.ToUpper(letter) == alphabet[i] {
+        letter = strings.ToUpper(r.FormValue("letter")) // on stock la lettre que l'uilisateur a rentré 
+        for i:=0 ; i<len(alphabet);i++ { // debut for
+            if letter == alphabet[i] {//debut if 
                 letter_choose = append(letter_choose,alphabet[i]) 
 				alphabet = remove(alphabet,i)
-            }
-        }
+				if letterChooseTest(letter, word) == false {
+					if attemps > 0 {
+						attemps-- // on retire une vie si la lettre n'est pas contenu dans le mot et que la lettre n'a pas déja été rentré
+					}
+				}
+            } // fin if
+        } // fin for 
+		if win(word,letter_choose) && attemps > 0 { // on verifie si l'utilisateur a gagné et a plus de 0 tentatives restantes
+			end = "You Win" // on affiche "You Win"
+			alphabet = []string{}
+			letter_choose = []string{"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"} // on change les valeurs
+		}else if attemps == 0 { // l'utilisateur a perdu
+			end = "You Loose"
+			alphabet = []string{}
+			letter_choose = []string{"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"}
+		}
 		word_tempo = printWord(letter_choose,word)
-        p := Page{letter, alphabet,word_tempo,letter_choose}
-        // Création d'une nouvelle  de template
-        t := template.New("Label de ma template")
-        // Déclaration des fichiers à parser
-        t = template.Must(t.ParseFiles("tmpl/layout.html", "tmpl/content.html"))
-        // Exécution de la fusion et injection dans le flux de sortie
-        // La variable p sera réprésentée par le "." dans le layout
+        p := Page{letter, alphabet,word_tempo,letter_choose,attemps,images_src[attemps],end}// Création d'une nouvelle  de template
+        t := template.New("Label de ma template")// Déclaration des fichiers à parser
+        t = template.Must(t.ParseFiles("tmpl/layout.html", "tmpl/content.html"))// Exécution de la fusion et injection dans le flux de sortie / La variable p sera réprésentée par le "." dans le layout
         err := t.ExecuteTemplate(w, "layout", p)
         if err != nil {
+			error501()
             log.Fatalf("Template execution: %s", err)
         }
-		if win(word,letter_choose) {
-			if replay() == true {
-				main()
-			}
-		}
     })
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { //crée une page
+	//
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { //crée une page avec n'importe quel URL 
 		tmpl, err := template.ParseFiles("./tmpl/index.html")
 		tmpl.ExecuteTemplate(w, "index", nil)
 		if err != nil {
-		}
-	})
-	http.HandleFunc("/error404", func(w http.ResponseWriter, r *http.Request) { //crée une page
-		tmpl, err := template.ParseFiles("./error404.html")
-		tmpl.ExecuteTemplate(w, "error404", nil)
-		if err != nil {
-		}
-	})
-	http.HandleFunc("/error501", func(w http.ResponseWriter, r *http.Request) { //crée une page
-		tmpl, err := template.ParseFiles("./error501.html")
-		tmpl.ExecuteTemplate(w, "error501", nil)
-		if err != nil {
+			error501()
 		}
 	})
 	http.ListenAndServe("localhost:3000", nil)
 }
 
+func error404() {
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { //crée une page avec n'importe quel URL si il y a une erreur 404
+		tmpl, err := template.ParseFiles("./error404.html")
+		tmpl.ExecuteTemplate(w, "error404", nil)
+		if err != nil {
+			error501()
+		}
+	})
+	http.ListenAndServe("localhost:3000", nil)
+}
+
+func error501() {
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { //crée une page avec n'importe quel URL si il y a une erreur 501
+		tmpl, err := template.ParseFiles("./error501.html")
+		tmpl.ExecuteTemplate(w, "error501", nil)
+		if err != nil {
+			// error501()
+		}
+	})
+	http.ListenAndServe("localhost:3000", nil)
+}
 func remove(slice []string, s int) []string {
+	/*
+	fonction permettant de retirer n'importe quel élément a l'index "s" que l'on souhaite
+	*/
     return append(slice[:s], slice[s+1:]...)
 }
 
@@ -109,36 +144,15 @@ func chooseWord() string {
 	*/
 	s, err := ioutil.ReadFile("words.txt") // ouverture du fichier word1 contenant tout les mots et qui seront stockés dans s
 	if err != nil {
+		error404()
 		fmt.Println(err.Error()) // renvois de l'erreur lors de louverture du fichier si il y a un problème 
 		fmt.Println(" Le fichier word1.txt a planter...")
-		os.Exit(1)
-	}
-	list := strings.Split(string(s),"\n") 
-	rand.Seed(time.Now().UnixNano()) // ceci permet de faire en sorte que l'aléatoire marche 
-	return strings.ToUpper(list[rand.Int31n(83)]) // renvois un mot choisis aléatoirement dans notre liste de mots 
-}
-
-func showJosé(r http.ResponseWriter,attemps int) {
-	/*
-	fonction permettant d'afficher le pendu 
-	input : - attemps type int il sagit du nombre de tentative qu'il reste avant de perde il permet donc d'afficher la position du bon pendu 
-	compléxité : O(71)
-	*/
-	if attemps == 10 { // ne rien renvoyer si il n'y a pas eu d'erreur
 	}else {
-		s, err := ioutil.ReadFile("hangman.txt") // ouverture du fichier txt Hangman contenant tout les position possible du pendu et les stock dans "s"
-		if err != nil {
-			fmt.Printf(err.Error()) // renvois d'une erreur si il y en a une 
-			fmt.Fprintln(r," Le fichier hangman.txt a planter...")
-			os.Exit(1)
-		}
-		hangman := ""
-		attemps++ // incrémentation de attemps
-		for i := attemps*71-71; i < 71*attemps-1; i++ { // debut boucle
-			hangman = hangman + string(s[i]) // on ajoute caractèere par caractère le hangman stockés dans s dans la variable string hangman 
-		} // fin boucle
-		fmt.Fprintln(r,hangman) // on imprime hangman 
+		list := strings.Split(string(s),"\n") 
+		rand.Seed(time.Now().UnixNano()) // ceci permet de faire en sorte que l'aléatoire marche 
+		return strings.ToUpper(list[rand.Int31n(83)]) // renvois un mot choisis aléatoirement dans notre liste de mots 
 	}
+	return " "
 }
 
 func take_letter(word2 []string) []string{
@@ -159,6 +173,7 @@ func take_letter(word2 []string) []string{
 	}
 	return tab // renvois le tableau contenant 
 }
+
 func win(wordChoose []string, group_letter []string) bool {
 	/*
 	fonction qui permet de savoir si l'utilisateur a gagné en trouver toutes les lettres 
@@ -182,22 +197,6 @@ func win(wordChoose []string, group_letter []string) bool {
 	}
 }
 
-func testLetter(letter string, letter_choose[]string) bool{
-	/*
-	fonction permettant de vérifier si la lettre choisi par l'utilisateur est déjà contenu dans la liste des lettres qu'à choisi l'utilisateur 
-	input : -letter type string il s'agit de la lettre choisi par l'utilsateur
-			-letter_choose type List/string il s'agit de la liste de lettres qu'à déjà rentré l'utilisateur 
-	return : Bool
-	Compléxité : O(2n) ; n = letter_choose
-	*/
-	for i := 0 ;i < len(letter_choose) ; i++{
-		if letter == string(letter_choose[i]) { // on vérifie si la lettre choisie par l'utilisateur n'est pas déjà présente dans notre liste de mot si c'estle cas on renvois false
-			return false
-		}
-	}
-	return true
-}
-
 func letterChooseTest(letter string, word []string) bool {
 	/*
 	fonction permettant de vérifier si la lettre chosi par l'utilisateur est contenu dans le mot a deviner
@@ -212,88 +211,4 @@ func letterChooseTest(letter string, word []string) bool {
 		}
 	}
 	return false
-}
-
-func replay() bool{
-	/*
-	fonction permettant de savoir si l'utilisateur veut relancer une partie ou non 
-	return : Bool
-	compléxité : O(4)
-	*/
-	answer := ""
-	fmt.Println("voulez-vous refaire une partie ? [Y/N] : ")
-	fmt.Scan(&answer)
-	if answer == "yes" || answer == "y"||answer == "YES" || answer == "Y"||answer == "Yes" { // si l'utilisateur ecrit yes il rejoue une partie sinon il quitte le programme 
-		return true
-	}else {
-		return false
-	}
-}
-
-
-func clear() {
-	/*
-	fonction permettant de clear la console pour que l'affichage soit plus propre 
-	compléxité : O(30)
-	*/
-	for i := 0; i < 30; i++ {
-		fmt.Println() // retour a la ligne 
-	}
-}
-
-func begin(r http.ResponseWriter, w *http.Request) {
-	/*
-	fonction principale du programme il permet de mettre en relation toutes les variables ci dessus, cette fonciton permet de jouer au pendu 
-	*/
-	attemps := 10 // il s'agit du nombre de tentatives qu'il nous reste 
-	word := chooseWord() // on choisi un mot aléatoire
-	test := strings.Split(word, "")
-	letterUser := take_letter(test)
-	letter := ""
-	for attemps > 0 && win(test,letterUser) == false{ // on continu de jouer tant que la fonction win est fausse et que le nombre de tentatives est strictement supérieur a 0 /
-		clear()
-		showJosé(r,attemps)// imprime la position du pendu
-		fmt.Fprint(r,"voici le mot que vous devez deviner : ")
-		fmt.Fprintln(r,printWord(letterUser,test))// imprime le mot que l'on doit deviner avec seulement les lettres 
-		fmt.Fprint(r,"vous avez ")
-		fmt.Fprint(r,attemps) // on imprime 
-		fmt.Fprint(r," tentatives avant un d'échoué \n \n \n")
-		fmt.Fprint(r,"les lettres que vous avez utilisez sont : ")
-		fmt.Fprintln(r,letterUser) // imprime toutes les lettres que l'utilisateur a rentré 
-		fmt.Fprintln(r,"")
-		fmt.Fprintf(r," entrez un caractère :  ")
-		if err := w.ParseForm(); err != nil {
-			fmt.Fprintf(r, "ParseForm() err: %v", err)
-			return
-		}
-		letter = w.FormValue("letter")// on prend la lettre uqe l'utilisateur choisie
-		letter = strings.ToUpper(letter) // si la lettre est bien dans dans l'alphabet on le passe en majuscule 
-		fmt.Fprintln(r,letter)
-		if testLetter(letter,letterUser) == false { // on verifie si la lettre n'a jamais été choisie
-			fmt.Fprint(r,"vous avez déja rentrez cette lettre au par avant \n \n \n") 
-		}else {
-			letterUser = append(letterUser,letter) // on ajoute la lettre choisi par l'utilisateur dans letterUser si il ne la pas encore choisie 
-		}
-		if letterChooseTest(letter, test) == false { // on verifie si la lettre choisie par l'utilisateur est dans le mot ou pas 
-			fmt.Fprint(r,"la lettre que vous avez choisie n'est pas dans le mot \n \n \n")
-			attemps-- // si non on imprime que elle n'est pas dans le mot et on décremente de 1 attemps
-		}else { // sinon cela veut dire que la lettre est forcément dans le mot 
-			fmt.Fprint(r,"vous avez trouvé une lettre de plus ! \n \n \n")
-		}
-	}//FIN BOUCLE
-	if attemps > 0 { // si il reste des tentatives cela veut dire que l'utilisateur a gagner 
-		fmt.Fprint(r," Bravo vous avez trouvé le mot !!! \n \n \n")
-		fmt.Fprint(r,"le mot était : ")
-		fmt.Fprintln(r,word)
-	}else { // sinon il a perdu
-		fmt.Fprint(r,"Mince, José est mort vous n'avez pas su retrouver le mot :'( \n \n \n")
-		fmt.Fprint(r,"le mot était : ")
-		fmt.Fprintln(r,word)
-	}
-	if replay() == true { // si replay est égal a true on relance le programme begin qui recommence une partie 
-		clear()
-		begin(r,w)
-	}else { //sinon le programme s'arrete
-		fmt.Fprintln(r,"a bientôt ! :) ")
-	}
 }
