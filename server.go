@@ -8,11 +8,10 @@ import (
     "io/ioutil"
     "math/rand"
     "time"
-    "os"
     "strings"
 )
 
-type Page struct {
+type Page struct { // la class Page est la classe permettant d'envoyer les variables que l'on souhaite dans notre fichier html et permet de l'afficher sur notre site avec un template 
 	Letter    string
 	Articles []string
 	Word 	string
@@ -57,9 +56,6 @@ func main() {
 			end = "You Win"
 			alphabet = []string{}
 			letter_choose = []string{"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"}
-			// if replay() == true {
-		 	// 	main()
-		 	// }
 		}else if attemps == 0 {
 			end = "You Loose"
 			alphabet = []string{}
@@ -71,6 +67,7 @@ func main() {
         t = template.Must(t.ParseFiles("tmpl/layout.html", "tmpl/content.html"))// Exécution de la fusion et injection dans le flux de sortie / La variable p sera réprésentée par le "." dans le layout
         err := t.ExecuteTemplate(w, "layout", p)
         if err != nil {
+			error501()
             log.Fatalf("Template execution: %s", err)
         }
     })
@@ -79,27 +76,37 @@ func main() {
 		tmpl, err := template.ParseFiles("./tmpl/index.html")
 		tmpl.ExecuteTemplate(w, "index", nil)
 		if err != nil {
+			error501()
 		}
 	})
-	//
-	http.HandleFunc("/error404", func(w http.ResponseWriter, r *http.Request) { //crée une page
-		tmpl, err := template.ParseFiles("./error404.html")
-		tmpl.ExecuteTemplate(w, "error404", nil)
-		if err != nil {
-		}
-	})
-	//
-	http.HandleFunc("/error501", func(w http.ResponseWriter, r *http.Request) { //crée une page
-		tmpl, err := template.ParseFiles("./error501.html")
-		tmpl.ExecuteTemplate(w, "error501", nil)
-		if err != nil {
-		}
-	})
-	//
 	http.ListenAndServe("localhost:3000", nil)
 }
 
+func error404() {
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { //crée une page
+		tmpl, err := template.ParseFiles("./error404.html")
+		tmpl.ExecuteTemplate(w, "error404", nil)
+		if err != nil {
+			error501()
+		}
+	})
+	http.ListenAndServe("localhost:3000", nil)
+}
+
+func error501() {
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { //crée une page
+		tmpl, err := template.ParseFiles("./error501.html")
+		tmpl.ExecuteTemplate(w, "error501", nil)
+		if err != nil {
+			// error501()
+		}
+	})
+	http.ListenAndServe("localhost:3000", nil)
+}
 func remove(slice []string, s int) []string {
+	/*
+	fonction permettant de retirer n'importe quel élément a l'index "s" que l'on souhaite
+	*/
     return append(slice[:s], slice[s+1:]...)
 }
 
@@ -136,13 +143,15 @@ func chooseWord() string {
 	*/
 	s, err := ioutil.ReadFile("words.txt") // ouverture du fichier word1 contenant tout les mots et qui seront stockés dans s
 	if err != nil {
+		error404()
 		fmt.Println(err.Error()) // renvois de l'erreur lors de louverture du fichier si il y a un problème 
 		fmt.Println(" Le fichier word1.txt a planter...")
-		os.Exit(1)
+	}else {
+		list := strings.Split(string(s),"\n") 
+		rand.Seed(time.Now().UnixNano()) // ceci permet de faire en sorte que l'aléatoire marche 
+		return strings.ToUpper(list[rand.Int31n(83)]) // renvois un mot choisis aléatoirement dans notre liste de mots 
 	}
-	list := strings.Split(string(s),"\n") 
-	rand.Seed(time.Now().UnixNano()) // ceci permet de faire en sorte que l'aléatoire marche 
-	return strings.ToUpper(list[rand.Int31n(83)]) // renvois un mot choisis aléatoirement dans notre liste de mots 
+	return " "
 }
 
 func take_letter(word2 []string) []string{
