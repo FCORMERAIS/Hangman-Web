@@ -20,6 +20,7 @@ type Page struct {
 	Articles2 []string
 	Vie int
 	Image string
+	End string
 }
 
 func main() {
@@ -29,7 +30,9 @@ func main() {
     alphabet := []string{"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"}
 	word_tempo := chooseWord()
 	word := strings.Split(word_tempo, "")
-	attemps := 11
+	attemps := 10
+	end := ""
+	letter := ""
 	letter_choose := take_letter(word)
 	for i:=0 ; i<len(alphabet);i++ {
 		if letter_choose[0] == alphabet[i] {
@@ -39,29 +42,38 @@ func main() {
 	// 
     http.HandleFunc("/Hangman", func(w http.ResponseWriter, r *http.Request) {
         // Création d'une page
-        letter := strings.ToUpper(r.FormValue("letter"))
+        letter = strings.ToUpper(r.FormValue("letter"))
         for i:=0 ; i<len(alphabet);i++ {
             if letter == alphabet[i] {
                 letter_choose = append(letter_choose,alphabet[i]) 
 				alphabet = remove(alphabet,i)
+				if letterChooseTest(letter, word) == false {
+					if attemps > 0 {
+						attemps--
+					}
+				}
             }
         }
-		if letterChooseTest(letter, word) == false {
-			attemps--
+		if win(word,letter_choose) && attemps > 0 {
+			end = "You Win"
+			alphabet = []string{}
+			letter_choose = []string{"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"}
+			// if replay() == true {
+		 	// 	main()
+		 	// }
+		}else if attemps == 0 {
+			end = "You Loose"
+			alphabet = []string{}
+			letter_choose = []string{"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"}
 		}
 		word_tempo = printWord(letter_choose,word)
-        p := Page{letter, alphabet,word_tempo,letter_choose,attemps,images_src[attemps]}// Création d'une nouvelle  de template
+        p := Page{letter, alphabet,word_tempo,letter_choose,attemps,images_src[attemps],end}// Création d'une nouvelle  de template
         t := template.New("Label de ma template")// Déclaration des fichiers à parser
         t = template.Must(t.ParseFiles("tmpl/layout.html", "tmpl/content.html"))// Exécution de la fusion et injection dans le flux de sortie / La variable p sera réprésentée par le "." dans le layout
         err := t.ExecuteTemplate(w, "layout", p)
         if err != nil {
             log.Fatalf("Template execution: %s", err)
         }
-		if win(word,letter_choose) {
-			if replay() == true {
-				main()
-			}
-		}
     })
 	//
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { //crée une page
