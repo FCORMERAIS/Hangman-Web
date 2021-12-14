@@ -22,41 +22,42 @@ type Page struct { // la class Page est la classe permettant d'envoyer les varia
 }
 
 func main() {
-	fs:= http.FileServer(http.Dir("tmpl/pos_hangman"))
-	http.Handle("/pos_hangman/", http.StripPrefix("/pos_hangman/" , fs))
+	fs:= http.FileServer(http.Dir("tmpl/pos_hangman")) 
+	http.Handle("/pos_hangman/", http.StripPrefix("/pos_hangman/" , fs)) // cela nous permet d'utiliser les images pour afficher la position du pendu en fonction du nombre de tentatives restantes 
 	images_src := []string{"pos_hangman/pos_10.png","pos_hangman/pos_9.png","pos_hangman/pos_8.png","pos_hangman/pos_7.png","pos_hangman/pos_6.png","pos_hangman/pos_5.png","pos_hangman/pos_4.png","pos_hangman/pos_3.png","pos_hangman/pos_2.png","pos_hangman/pos_1.png","pos_hangman/pos_0.png"}
-    alphabet := []string{"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"}
-	word_tempo := chooseWord()
-	word := strings.Split(word_tempo, "")
-	attemps := 10
-	end := ""
-	letter := ""
-	letter_choose := take_letter(word)
+    // on stocks les endroits ou sont stockés les images du pendu dans uen liste 
+	alphabet := []string{"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"}// liste contenant toutes les lettres que l'on peut utiliser
+	word_tempo := chooseWord()// nous permet d'afficher la progression de l'utilisateur
+	word := strings.Split(word_tempo, "")// il s'agit du mot a trouver mais qu'on a split pour qu'il soit contenu dans une liste (cela nous permet d'utiliser des focntions)
+	attemps := 10 // initialisation du nombre de tentatives
+	end := "" // initialisation du message qu'on affiche our savoir 
+	letter := "" 
+	letter_choose := take_letter(word) // nous permet d'enregistrer les lettres que l'utilisateur a choisie et il commence avec une lettre deja donné 
 	for i:=0 ; i<len(alphabet);i++ {
 		if letter_choose[0] == alphabet[i] {
-			alphabet = remove(alphabet,i)
+			alphabet = remove(alphabet,i) // on retire la lettre que l'on a donné de l'alphabet
 		}
 	}
 	// 
     http.HandleFunc("/Hangman", func(w http.ResponseWriter, r *http.Request) {
         // Création d'une page
-        letter = strings.ToUpper(r.FormValue("letter"))
-        for i:=0 ; i<len(alphabet);i++ {
-            if letter == alphabet[i] {
+        letter = strings.ToUpper(r.FormValue("letter")) // on stock la lettre que l'uilisateur a rentré 
+        for i:=0 ; i<len(alphabet);i++ { // debut for
+            if letter == alphabet[i] {//debut if 
                 letter_choose = append(letter_choose,alphabet[i]) 
 				alphabet = remove(alphabet,i)
 				if letterChooseTest(letter, word) == false {
 					if attemps > 0 {
-						attemps--
+						attemps-- // on retire une vie si la lettre n'est pas contenu dans le mot et que la lettre n'a pas déja été rentré
 					}
 				}
-            }
-        }
-		if win(word,letter_choose) && attemps > 0 {
-			end = "You Win"
+            } // fin if
+        } // fin for 
+		if win(word,letter_choose) && attemps > 0 { // on verifie si l'utilisateur a gagné et a plus de 0 tentatives restantes
+			end = "You Win" // on affiche "You Win"
 			alphabet = []string{}
-			letter_choose = []string{"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"}
-		}else if attemps == 0 {
+			letter_choose = []string{"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"} // on change les valeurs
+		}else if attemps == 0 { // l'utilisateur a perdu
 			end = "You Loose"
 			alphabet = []string{}
 			letter_choose = []string{"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"}
@@ -72,7 +73,7 @@ func main() {
         }
     })
 	//
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { //crée une page
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { //crée une page avec n'importe quel URL 
 		tmpl, err := template.ParseFiles("./tmpl/index.html")
 		tmpl.ExecuteTemplate(w, "index", nil)
 		if err != nil {
@@ -83,7 +84,7 @@ func main() {
 }
 
 func error404() {
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { //crée une page
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { //crée une page avec n'importe quel URL si il y a une erreur 404
 		tmpl, err := template.ParseFiles("./error404.html")
 		tmpl.ExecuteTemplate(w, "error404", nil)
 		if err != nil {
@@ -94,7 +95,7 @@ func error404() {
 }
 
 func error501() {
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { //crée une page
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { //crée une page avec n'importe quel URL si il y a une erreur 501
 		tmpl, err := template.ParseFiles("./error501.html")
 		tmpl.ExecuteTemplate(w, "error501", nil)
 		if err != nil {
