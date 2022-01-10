@@ -16,7 +16,7 @@ type Page struct { // la class Page est la classe permettant d'envoyer les varia
 	Letter_not_choose []string
 	Word 	string
 	Letter_choose []string
-	Vie int
+	Life int
 	Image string
 	End string
 }
