@@ -27,7 +27,7 @@ func main() {
 	pictures_src := []string{"pos_hangman/pos_10.png","pos_hangman/pos_9.png","pos_hangman/pos_8.png","pos_hangman/pos_7.png","pos_hangman/pos_6.png","pos_hangman/pos_5.png","pos_hangman/pos_4.png","pos_hangman/pos_3.png","pos_hangman/pos_2.png","pos_hangman/pos_1.png","pos_hangman/pos_0.png"}
     // on stocks les endroits ou sont stockés les images du pendu dans uen liste 
 	alphabet := []string{"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"}// liste contenant toutes les lettres que l'on peut utiliser
-	word_tempo := "TABLE-BASSE"// nous permet d'afficher la progression de l'utilisateur
+	word_tempo := chooseWord()// nous permet d'afficher la progression de l'utilisateur
 	word := strings.Split(word_tempo, "")// il s'agit du mot a trouver mais qu'on a split pour qu'il soit contenu dans une liste (cela nous permet d'utiliser des focntions)
 	attemps := 10 // initialisation du nombre de tentatives
 	end := "" // initialisation du message qu'on affiche pour la victoire ou la défaite
