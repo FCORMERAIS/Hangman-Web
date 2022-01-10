@@ -1,5 +1,6 @@
-{{define "index"}}
-<style>* { /*applique à toute la page*/
+{{ define "index"}}
+<style>
+  * { /*applique à toute la page*/
   margin: 0;/*supprime le contour blanc*/
   font-family: "Architects Daughter"; /*ou "Prompt", j'ai importé 2 polices qui me plaisaient via google front*/
 }
@@ -15,7 +16,7 @@
   display: flex;
 }
 
-.navbar {
+.navbar { 
   height: 100px;
   display: flex;
   align-items: center;
@@ -25,7 +26,7 @@
   left: 0;
   right: 0;
   background: rgba(31, 22, 22, 0.137);/*J'ai ajouté de la transparence*/
-}
+} 
 
 .logo {
   color: #335bb1;
@@ -92,6 +93,7 @@ ul li a:hover {
 }
 
 .intro > button {
+  margin-left: 25%;
   width: 160px;
   height: 40px;
   border: 1px solid #fff;
@@ -269,12 +271,18 @@ h3 {
   margin-left: 5px;
   margin-right: 30px;
   border-radius: 40%;
-}</style>
+}
+</style>
+
+
+
+
+
 
 <!DOCTYPE html>
-
   <head>
     <title>Juliette&Flavio's page</title>
+    <link rel="icon" type="image/png" href="https://zupimages.net/up/21/49/jt54.png" />
     <link rel="stylesheet" href="style.css" />
     <link
       href="https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Prompt:wght@200&display=swap" rel="stylesheet">
@@ -290,7 +298,7 @@ h3 {
           <li><a href="#page1">Play</a></li>
           <li><a href="#page2">The Team</a></li>
           <li><a href="#page3">Rules</a></li>
-          <li><a href="#page4">Gitea</a></li>
+          <li><a href="#git">Gitea</a></li>
         </ul>
       </div>
     </div>
@@ -304,13 +312,11 @@ h3 {
             <br>
             We needed to create a private repository with the name hangman-web
           </p>
-          <a href="http://localhost:3000/Hangman">
-            <input type="button" name="btn" value="Play Now">
-        </a> 
+            <button onclick="window.location.href = 'http://localhost:3000/Hangman';">PLAY NOW</button>  
         </div>
+
         <div>
             <img class = "photopendu" src="https://zupimages.net/up/21/49/jt54.png" />
-          </p>
         </div>
       </section>
     </section>
@@ -348,7 +354,7 @@ h3 {
       <p>Thanks to our professor and mentors<br/>
       <img class= "imgynov" src= "https://www.e-testing.fr/wp-content/uploads/2017/11/logo-ynov.jpg" /></p>
     </section>
-    <section class="git">
+    <section class="git" id="git">
       <h1>
         Our Repository in GITEA<br /><span
           >Hangman-web</span

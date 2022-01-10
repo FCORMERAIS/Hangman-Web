@@ -100,7 +100,7 @@ ul li {
   padding: 8px 20px 0 20px;
   font-size: 14px;
 }
-.test{
+.alignement{
   display: flex;
 }
 ul li::after {
@@ -132,15 +132,15 @@ ul li a:hover {
 <h1 class="mot">{{.Word}}</h1>
 <h2 class="vie">{{.Vie}} ❤</h2>
 <br>
-<div class="test">
+<div class="alignement">
 <img class= "img" src={{ .Image}}>
-    {{range .Articles}}
+    {{range .Letter_not_choose}}
         <p class="alphabet">{{.}}</p>
     {{end}}
 </div>
 </p>
-<div class="test">
-    {{range .Articles2}}
+<div class="alignement">
+    {{range .Letter_choose}}
     <p class="letterChoose">{{.}}</p>
     {{end}}
 </div>

@@ -13,9 +13,9 @@ import (
 
 type Page struct { // la class Page est la classe permettant d'envoyer les variables que l'on souhaite dans notre fichier html et permet de l'afficher sur notre site avec un template 
 	Letter    string
-	Articles []string
+	Letter_not_choose []string
 	Word 	string
-	Articles2 []string
+	Letter_choose []string
 	Vie int
 	Image string
 	End string
@@ -24,13 +24,13 @@ type Page struct { // la class Page est la classe permettant d'envoyer les varia
 func main() {
 	fs:= http.FileServer(http.Dir("tmpl/pos_hangman")) 
 	http.Handle("/pos_hangman/", http.StripPrefix("/pos_hangman/" , fs)) // cela nous permet d'utiliser les images pour afficher la position du pendu en fonction du nombre de tentatives restantes 
-	images_src := []string{"pos_hangman/pos_10.png","pos_hangman/pos_9.png","pos_hangman/pos_8.png","pos_hangman/pos_7.png","pos_hangman/pos_6.png","pos_hangman/pos_5.png","pos_hangman/pos_4.png","pos_hangman/pos_3.png","pos_hangman/pos_2.png","pos_hangman/pos_1.png","pos_hangman/pos_0.png"}
+	pictures_src := []string{"pos_hangman/pos_10.png","pos_hangman/pos_9.png","pos_hangman/pos_8.png","pos_hangman/pos_7.png","pos_hangman/pos_6.png","pos_hangman/pos_5.png","pos_hangman/pos_4.png","pos_hangman/pos_3.png","pos_hangman/pos_2.png","pos_hangman/pos_1.png","pos_hangman/pos_0.png"}
     // on stocks les endroits ou sont stockés les images du pendu dans uen liste 
 	alphabet := []string{"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"}// liste contenant toutes les lettres que l'on peut utiliser
 	word_tempo := chooseWord()// nous permet d'afficher la progression de l'utilisateur
 	word := strings.Split(word_tempo, "")// il s'agit du mot a trouver mais qu'on a split pour qu'il soit contenu dans une liste (cela nous permet d'utiliser des focntions)
 	attemps := 10 // initialisation du nombre de tentatives
-	end := "" // initialisation du message qu'on affiche our savoir 
+	end := "" // initialisation du message qu'on affiche pour la victoire ou la défaite
 	letter := "" 
 	letter_choose := take_letter(word) // nous permet d'enregistrer les lettres que l'utilisateur a choisie et il commence avec une lettre deja donné 
 	for i:=0 ; i<len(alphabet);i++ {
@@ -63,7 +63,7 @@ func main() {
 			letter_choose = []string{"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"}
 		}
 		word_tempo = printWord(letter_choose,word)
-        p := Page{letter, alphabet,word_tempo,letter_choose,attemps,images_src[attemps],end}// Création d'une nouvelle  de template
+        p := Page{letter, alphabet,word_tempo,letter_choose,attemps,pictures_src[attemps],end}// Création d'une nouvelle  de template
         t := template.New("Label de ma template")// Déclaration des fichiers à parser
         t = template.Must(t.ParseFiles("tmpl/layout.html", "tmpl/content.html"))// Exécution de la fusion et injection dans le flux de sortie / La variable p sera réprésentée par le "." dans le layout
         err := t.ExecuteTemplate(w, "layout", p)
