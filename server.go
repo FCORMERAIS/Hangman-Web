@@ -27,7 +27,7 @@ func main() {
 	pictures_src := []string{"pos_hangman/pos_10.png","pos_hangman/pos_9.png","pos_hangman/pos_8.png","pos_hangman/pos_7.png","pos_hangman/pos_6.png","pos_hangman/pos_5.png","pos_hangman/pos_4.png","pos_hangman/pos_3.png","pos_hangman/pos_2.png","pos_hangman/pos_1.png","pos_hangman/pos_0.png"}
     // on stocks les endroits ou sont stockés les images du pendu dans uen liste 
 	alphabet := []string{"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"}// liste contenant toutes les lettres que l'on peut utiliser
-	word_tempo := chooseWord()// nous permet d'afficher la progression de l'utilisateur
+	word_tempo := "TABLE-BASSE"// nous permet d'afficher la progression de l'utilisateur
 	word := strings.Split(word_tempo, "")// il s'agit du mot a trouver mais qu'on a split pour qu'il soit contenu dans une liste (cela nous permet d'utiliser des focntions)
 	attemps := 10 // initialisation du nombre de tentatives
 	end := "" // initialisation du message qu'on affiche pour la victoire ou la défaite
@@ -121,6 +121,10 @@ func printWord(letter_choose []string, word []string)string {
 	mot := ""
 	count := 0 
 	for i:= 0 ; i < len(word) ;i++{
+		if string(word[i]) == "-"{
+			mot= mot+"- "
+			i++
+		}
 		for k := 0; k < len(letter_choose); k++ { // debut de la boucle
 			if string(word[i]) == string(letter_choose[k]) {
 				mot = mot+string(word[i])
@@ -164,12 +168,8 @@ func take_letter(word2 []string) []string{
 	*/
 	var tab []string
 	rand.Seed(time.Now().UnixNano())
-	tab = append(tab,string(word2[rand.Intn(len(word2)-1)])) // prend une lettre aléatoire dans le mot a deviner et l'ajoute dans les lettres déja choisie 
+	tab = append(tab,strings.ToUpper(string(word2[rand.Intn(len(word2)-1)]))) // prend une lettre aléatoire dans le mot a deviner et l'ajoute dans les lettres déja choisie 
 	for i := 0; i < len(word2); i++ {
-		if string(word2[i]) == "-" { // si il y a un tiret l'ajoute aussi dans notre liste 
-			tab = append(tab,"-") 
-			return tab 
-		}
 	}
 	return tab // renvois le tableau contenant 
 }
@@ -184,6 +184,9 @@ func win(wordChoose []string, group_letter []string) bool {
 	*/
 	count := 0 
 	for i := 0; i < len(wordChoose); i++ { // debut boucle i
+		if wordChoose[i] == "-" {
+			count++
+		}
 		for k := 0; k < len(group_letter); k++ { // debut boucle k 
 			if group_letter[k] == string(wordChoose[i]) { // on vérifie si une lettre du mot est dans notre liste de mot 
 				count++ // si la lettre du mot est dans notre liste de lettre on ajoute 1 a un compteur 
