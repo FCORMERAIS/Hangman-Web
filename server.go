@@ -13,9 +13,9 @@ import (
 
 type Page struct { // la class Page est la classe permettant d'envoyer les variables que l'on souhaite dans notre fichier html et permet de l'afficher sur notre site avec un template 
 	Letter    string
-	Letter_not_choose []string
+	LetterNotChoose []string
 	Word 	string
-	Letter_choose []string
+	LetterChoose []string
 	Life int
 	Image string
 	End string
@@ -24,17 +24,17 @@ type Page struct { // la class Page est la classe permettant d'envoyer les varia
 func main() {
 	fs:= http.FileServer(http.Dir("tmpl/pos_hangman")) 
 	http.Handle("/pos_hangman/", http.StripPrefix("/pos_hangman/" , fs)) // cela nous permet d'utiliser les images pour afficher la position du pendu en fonction du nombre de tentatives restantes 
-	pictures_src := []string{"pos_hangman/pos_10.png","pos_hangman/pos_9.png","pos_hangman/pos_8.png","pos_hangman/pos_7.png","pos_hangman/pos_6.png","pos_hangman/pos_5.png","pos_hangman/pos_4.png","pos_hangman/pos_3.png","pos_hangman/pos_2.png","pos_hangman/pos_1.png","pos_hangman/pos_0.png"}
+	picturesSrc := []string{"pos_hangman/pos_10.png","pos_hangman/pos_9.png","pos_hangman/pos_8.png","pos_hangman/pos_7.png","pos_hangman/pos_6.png","pos_hangman/pos_5.png","pos_hangman/pos_4.png","pos_hangman/pos_3.png","pos_hangman/pos_2.png","pos_hangman/pos_1.png","pos_hangman/pos_0.png"}
     // on stocks les endroits ou sont stockés les images du pendu dans uen liste 
 	alphabet := []string{"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"}// liste contenant toutes les lettres que l'on peut utiliser
-	word_tempo := chooseWord()// nous permet d'afficher la progression de l'utilisateur
-	word := strings.Split(word_tempo, "")// il s'agit du mot a trouver mais qu'on a split pour qu'il soit contenu dans une liste (cela nous permet d'utiliser des focntions)
+	wordTempo := chooseWord()// nous permet d'afficher la progression de l'utilisateur
+	word := strings.Split(wordTempo, "")// il s'agit du mot a trouver mais qu'on a split pour qu'il soit contenu dans une liste (cela nous permet d'utiliser des focntions)
 	attemps := 10 // initialisation du nombre de tentatives
 	end := "" // initialisation du message qu'on affiche pour la victoire ou la défaite
 	letter := "" 
-	letter_choose := take_letter(word) // nous permet d'enregistrer les lettres que l'utilisateur a choisie et il commence avec une lettre deja donné 
+	letterChoose := take_letter(word) // nous permet d'enregistrer les lettres que l'utilisateur a choisie et il commence avec une lettre deja donné 
 	for i:=0 ; i<len(alphabet);i++ {
-		if letter_choose[0] == alphabet[i] {
+		if letterChoose[0] == alphabet[i] {
 			alphabet = remove(alphabet,i) // on retire la lettre que l'on a donné de l'alphabet
 		}
 	}
@@ -44,7 +44,7 @@ func main() {
         letter = strings.ToUpper(r.FormValue("letter")) // on stock la lettre que l'uilisateur a rentré 
         for i:=0 ; i<len(alphabet);i++ { // debut for
             if letter == alphabet[i] {//debut if 
-                letter_choose = append(letter_choose,alphabet[i]) 
+                letterChoose = append(letterChoose,alphabet[i]) 
 				alphabet = remove(alphabet,i)
 				if letterChooseTest(letter, word) == false {
 					if attemps > 0 {
@@ -53,17 +53,17 @@ func main() {
 				}
             } // fin if
         } // fin for 
-		if win(word,letter_choose) && attemps > 0 { // on verifie si l'utilisateur a gagné et a plus de 0 tentatives restantes
+		if win(word,letterChoose) && attemps > 0 { // on verifie si l'utilisateur a gagné et a plus de 0 tentatives restantes
 			end = "You Win" // on affiche "You Win"
 			alphabet = []string{}
-			letter_choose = []string{"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"} // on change les valeurs
+			letterChoose = []string{"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"} // on change les valeurs
 		}else if attemps == 0 { // l'utilisateur a perdu
 			end = "You Loose"
 			alphabet = []string{}
-			letter_choose = []string{"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"}
+			letterChoose = []string{"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"}
 		}
-		word_tempo = printWord(letter_choose,word)
-        p := Page{letter, alphabet,word_tempo,letter_choose,attemps,pictures_src[attemps],end}// Création d'une nouvelle  de template
+		wordTempo = printWord(letterChoose,word)
+        p := Page{letter, alphabet,wordTempo,letterChoose,attemps,picturesSrc[attemps],end}// Création d'une nouvelle  de template
         t := template.New("Label de ma template")// Déclaration des fichiers à parser
         t = template.Must(t.ParseFiles("tmpl/layout.html", "tmpl/content.html"))// Exécution de la fusion et injection dans le flux de sortie / La variable p sera réprésentée par le "." dans le layout
         err := t.ExecuteTemplate(w, "layout", p)
@@ -111,7 +111,7 @@ func remove(slice []string, s int) []string {
     return append(slice[:s], slice[s+1:]...)
 }
 
-func printWord(letter_choose []string, word []string)string {
+func printWord(letterChoose []string, word []string)string {
 	/*
 	fonction permettant d'afficher le mot en fonction des lettres que l'utilisateur a déjà trouver
 	input : -letter_choose type []string il s'agit des lettres que l'utilisateur a déjà rentrer 
@@ -125,8 +125,8 @@ func printWord(letter_choose []string, word []string)string {
 			mot= mot+"- "
 			i++
 		}
-		for k := 0; k < len(letter_choose); k++ { // debut de la boucle
-			if string(word[i]) == string(letter_choose[k]) {
+		for k := 0; k < len(letterChoose); k++ { // debut de la boucle
+			if string(word[i]) == string(letterChoose[k]) {
 				mot = mot+string(word[i])
 				count++
 			}
@@ -174,7 +174,7 @@ func take_letter(word2 []string) []string{
 	return tab // renvois le tableau contenant 
 }
 
-func win(wordChoose []string, group_letter []string) bool {
+func win(wordChoose []string, groupLetter []string) bool {
 	/*
 	fonction qui permet de savoir si l'utilisateur a gagné en trouver toutes les lettres 
 	input : -wordChoose type string il sagit du mot que l'utilisateur doit choisir 
@@ -187,8 +187,8 @@ func win(wordChoose []string, group_letter []string) bool {
 		if wordChoose[i] == "-" {
 			count++
 		}
-		for k := 0; k < len(group_letter); k++ { // debut boucle k 
-			if group_letter[k] == string(wordChoose[i]) { // on vérifie si une lettre du mot est dans notre liste de mot 
+		for k := 0; k < len(groupLetter); k++ { // debut boucle k 
+			if groupLetter[k] == string(wordChoose[i]) { // on vérifie si une lettre du mot est dans notre liste de mot 
 				count++ // si la lettre du mot est dans notre liste de lettre on ajoute 1 a un compteur 
 			}// fin obucle k
 		} // fin boucle i
